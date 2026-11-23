@@ -1,4 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0d9488"/>
-  <text x="32" y="32" dy="0.35em" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="26" font-weight="600" fill="#ffffff">SP</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="crispEdges">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4e3d72"/>
+      <stop offset="55%" stop-color="#c97a8e"/>
+      <stop offset="100%" stop-color="#f7b398"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#sky)"/>
+  <!-- Distant alpine peaks -->
+  <polygon points="0,42 16,20 30,36 46,16 64,40 64,64 0,64" fill="#6b5882"/>
+  <polygon points="16,20 22,27 12,28" fill="#f7e6e4"/>
+  <polygon points="46,16 53,25 40,25" fill="#fff1ed"/>
+  <!-- Snow slope -->
+  <rect x="0" y="42" width="64" height="22" fill="#f8e8e6"/>
+  <rect x="0" y="42" width="64" height="3" fill="#fff5f2"/>
+  <!-- Pixel Snowcat silhouette -->
+  <rect x="14" y="40" width="28" height="9" fill="#2c3040"/>
+  <rect x="17" y="42" width="4" height="5" fill="#7d8499"/>
+  <rect x="24" y="42" width="4" height="5" fill="#7d8499"/>
+  <rect x="31" y="42" width="4" height="5" fill="#7d8499"/>
+  <rect x="37" y="42" width="4" height="5" fill="#7d8499"/>
+  <!-- Red cab -->
+  <rect x="16" y="34" width="24" height="7" fill="#d93829"/>
+  <rect x="24" y="25" width="16" height="10" fill="#e64533"/>
+  <rect x="32" y="27" width="7" height="6" fill="#29344a"/>
+  <rect x="34" y="28" width="2" height="2" fill="#9bc7f0"/>
+  <!-- Flashing amber roof beacon & headlight -->
+  <rect x="28" y="22" width="4" height="3" fill="#ffd166"/>
+  <rect x="39" y="26" width="3" height="2" fill="#fffbe8"/>
+  <!-- Rear crane boom -->
+  <rect x="14" y="27" width="8" height="3" fill="#c92e22"/>
+  <rect x="12" y="29" width="4" height="6" fill="#e64533"/>
+  <!-- Front curved plow blade + snow wave -->
+  <rect x="42" y="37" width="5" height="12" fill="#2b2f3d"/>
+  <rect x="42" y="35" width="5" height="2" fill="#f0b630"/>
+  <rect x="47" y="42" width="8" height="7" fill="#ffffff"/>
+  <rect x="49" y="39" width="5" height="4" fill="#fff1ed"/>
+  <rect x="54" y="45" width="4" height="4" fill="#ebd5dc"/>
 </svg>

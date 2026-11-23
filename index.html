@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SNOW PATROL — Sprite-Stacked 3D Alpine Snowplow Game</title>
+<meta name="description" content="Command a sprite-stacked 3D alpine snowcat across 5 scalable mountain shifts. Real-time deformable snow physics, Reverb-TTS neural radio voices, adaptive synth soundtrack, and controller rumble — playable free in your browser." />
+<meta property="og:title" content="SNOW PATROL — Sprite-Stacked 3D Alpine Snowplow Game" />
+<meta property="og:description" content="Carve the mountain. Clear the storm. Playable right in your browser with Three.js sprite stacking, real-time snow physics, Reverb-TTS neural voices, and controller rumble." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+<style>
+  :root {
+    --bg: #130f1e;
+    --bg-2: #1b1529;
+    --surface: rgba(26, 20, 40, 0.78);
+    --surface-solid: #1e1730;
+    --border: rgba(255, 224, 214, 0.16);
+    --border-hi: rgba(255, 209, 102, 0.48);
+    --text: #fff5f0;
+    --muted: #c8b6c7;
+    --crimson: #ef4d39;
+    --crimson-hi: #ff8666;
+    --gold: #ffd166;
+    --peach: #f7b59b;
+    --ice: #8fd3ff;
+    --good: #6be69e;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--sans); line-height: 1.55; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+
+  /* Subtle background snow canvas */
+  #bg-snow {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; opacity: 0.65;
+  }
+
+  /* ==================== NAV ==================== */
+  nav.top-nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(16, 12, 26, 0.82);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1160px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px; text-decoration: none;
+    font-family: var(--mono); font-weight: 900; font-size: 15px; letter-spacing: 0.1em;
+  }
+  .nav-brand img { width: 32px; height: 32px; border-radius: 6px; image-rendering: pixelated; }
+  .nav-links {
+    display: flex; align-items: center; gap: 20px; font-size: 13px; color: var(--muted);
+  }
+  .nav-links a { text-decoration: none; transition: color 130ms ease; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-actions { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    text-decoration: none; font-family: var(--mono); font-weight: 800; font-size: 12.5px;
+    letter-spacing: 0.04em; padding: 9px 16px; border-radius: 7px; cursor: pointer;
+    border: 1px solid transparent; transition: 140ms ease;
+  }
+  .btn-primary {
+    background: var(--crimson); border-color: var(--crimson-hi); color: #fff;
+    box-shadow: 0 6px 22px rgba(239, 77, 57, 0.42);
+  }
+  .btn-primary:hover { background: #fa5d49; transform: translateY(-1px); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.06); border-color: var(--border); color: var(--text);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,224,214,0.38); }
+  .btn-lg { padding: 13px 24px; font-size: 14px; border-radius: 8px; }
+
+  /* ==================== HERO ==================== */
+  .hero {
+    position: relative; z-index: 2;
+    background:
+      radial-gradient(ellipse 85% 55% at 50% 0%, rgba(247, 181, 155, 0.24), transparent 68%),
+      radial-gradient(ellipse 65% 45% at 80% 18%, rgba(203, 130, 149, 0.20), transparent 62%),
+      linear-gradient(180deg, #271b3c 0%, #171224 55%, #130f1e 100%);
+    padding: 58px 20px 68px;
+    border-bottom: 1px solid var(--border);
+  }
+  .container { max-width: 1160px; margin: 0 auto; position: relative; z-index: 2; }
+  .hero-copy { text-align: center; max-width: 820px; margin: 0 auto 38px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold);
+    background: rgba(255, 209, 102, 0.11); border: 1px solid rgba(255, 209, 102, 0.36);
+    padding: 5px 12px; border-radius: 99px; margin-bottom: 18px;
+  }
+  .eyebrow-dot { width: 7px; height: 7px; border-radius: 2px; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  h1.hero-title {
+    margin: 0 0 14px; font-family: var(--mono); font-weight: 900;
+    font-size: clamp(36px, 6.2vw, 66px); line-height: 1.02; letter-spacing: 0.04em;
+    background: linear-gradient(180deg, #fff9f5 25%, #ffc5a8 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-lead {
+    margin: 0 auto 26px; max-width: 660px; font-size: 17px; color: #dfd0df; line-height: 1.6;
+  }
+  .hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 11px; margin-bottom: 24px; }
+  .hero-stats {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  }
+  .hero-stats span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-stats b { color: var(--text); }
+
+  /* ==================== LIVE EMBEDDED PLAY CONSOLE ==================== */
+  .play-shell {
+    max-width: 1020px; margin: 0 auto;
+    background: rgba(14, 10, 24, 0.92);
+    border: 1px solid var(--border-hi);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(255,209,102,0.12);
+  }
+  .play-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; background: rgba(26, 20, 42, 0.95);
+    border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px;
+  }
+  .play-bar-left { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .win-dots { display: flex; gap: 5px; }
+  .win-dots i { width: 9px; height: 9px; border-radius: 50%; display: block; background: rgba(255,255,255,0.22); }
+  .win-dots i:first-child { background: #ef4d39; }
+  .win-dots i:nth-child(2) { background: #ffd166; }
+  .win-dots i:nth-child(3) { background: #6be69e; }
+  .play-bar-actions { display: flex; gap: 6px; }
+  .mini-btn {
+    appearance: none; border: 1px solid var(--border); background: rgba(255,255,255,0.06);
+    color: var(--text); font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    padding: 4px 9px; border-radius: 5px; cursor: pointer; text-decoration: none;
+  }
+  .mini-btn:hover { background: rgba(255,255,255,0.14); border-color: var(--border-hi); }
+
+  .play-viewport {
+    position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 340px;
+    background: linear-gradient(180deg, #5d4c80 0%, #c68092 42%, #f4b299 66%, #f6e4e4 66%, #dbd3e2 100%);
+    overflow: hidden;
+  }
+  .play-viewport iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block;
+  }
+  .play-cover {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; text-align: center;
+    background: radial-gradient(circle at 50% 45%, rgba(20, 14, 34, 0.34), rgba(14, 10, 24, 0.78));
+  }
+  .cover-art {
+    width: 112px; height: 112px; border-radius: 18px; margin-bottom: 16px;
+    border: 2px solid var(--border-hi); box-shadow: 0 14px 36px rgba(0,0,0,0.55);
+    image-rendering: pixelated;
+  }
+  .cover-title {
+    font-family: var(--mono); font-size: 20px; font-weight: 900; letter-spacing: 0.08em;
+    margin: 0 0 6px;
+  }
+  .cover-sub {
+    font-size: 13px; color: #e2d4e2; max-width: 460px; margin: 0 0 18px;
+  }
+  .cover-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+
+  /* ==================== SECTIONS ==================== */
+  section.block { padding: 74px 20px; position: relative; z-index: 2; }
+  section.block.alt { background: rgba(255, 255, 255, 0.018); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .sec-head { max-width: 700px; margin: 0 auto 38px; text-align: center; }
+  .sec-kicker {
+    font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+  }
+  .sec-title {
+    margin: 0 0 10px; font-family: var(--mono); font-size: clamp(24px, 3.6vw, 34px);
+    font-weight: 900; letter-spacing: 0.03em; line-height: 1.15;
+  }
+  .sec-desc { margin: 0; font-size: 15px; color: var(--muted); }
+
+  /* ==================== 5 SCALABLE SHIFTS ==================== */
+  .shifts-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px;
+  }
+  .shift-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 11px;
+    padding: 16px; display: flex; flex-direction: column; gap: 8px;
+    transition: 150ms ease; position: relative; overflow: hidden;
+  }
+  .shift-card:hover { border-color: var(--border-hi); transform: translateY(-3px); }
+  .shift-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 10px; }
+  .scale-pill {
+    padding: 2px 7px; border-radius: 4px; font-weight: 800; letter-spacing: 0.06em;
+    background: rgba(143, 211, 255, 0.15); color: var(--ice); border: 1px solid rgba(143, 211, 255, 0.35);
+  }
+  .scale-pill.massive { background: rgba(239, 77, 57, 0.22); color: #ffb9a6; border-color: rgba(255, 134, 102, 0.45); }
+  .shift-mood { font-size: 11px; color: var(--gold); }
+  .shift-name { font-family: var(--mono); font-weight: 900; font-size: 15px; margin: 2px 0 0; }
+  .shift-desc { font-size: 12.5px; color: var(--muted); flex: 1; margin: 0; }
+  .shift-meta {
+    display: flex; flex-wrap: wrap; gap: 6px; font-family: var(--mono); font-size: 10.5px; color: #f4d6cc;
+    padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .shift-play {
+    margin-top: 6px; text-align: center; font-family: var(--mono); font-size: 11.5px; font-weight: 800;
+    padding: 7px 10px; border-radius: 6px; text-decoration: none;
+    background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text);
+    transition: 120ms ease;
+  }
+  .shift-play:hover { background: var(--crimson); border-color: var(--crimson-hi); color: #fff; }
+
+  /* ==================== REVERB-TTS VOICE CAST ==================== */
+  .voices-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;
+  }
+  .voice-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .voice-head { display: flex; align-items: center; gap: 12px; }
+  .voice-badge {
+    width: 44px; height: 44px; border-radius: 9px; flex-shrink: 0;
+    display: grid; place-items: center; font-size: 20px;
+    background: rgba(255, 209, 102, 0.14); border: 1px solid var(--border-hi);
+  }
+  .voice-badge.gus { background: rgba(143, 211, 255, 0.14); border-color: rgba(143, 211, 255, 0.45); }
+  .voice-badge.guest { background: rgba(239, 77, 57, 0.16); border-color: rgba(255, 134, 102, 0.48); }
+  .voice-role { font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: 0.08em; color: var(--gold); text-transform: uppercase; }
+  .voice-role.gus { color: var(--ice); }
+  .voice-role.guest { color: var(--crimson-hi); }
+  .voice-name { font-family: var(--mono); font-size: 16px; font-weight: 900; margin: 1px 0 0; }
+  .voice-bio { font-size: 13px; color: var(--muted); margin: 0; }
+  .voice-clips { display: flex; flex-direction: column; gap: 7px; }
+  .clip-btn {
+    appearance: none; width: 100%; text-align: left;
+    background: rgba(10, 8, 18, 0.58); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 11px; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11.5px;
+    transition: 120ms ease;
+  }
+  .clip-btn:hover { background: rgba(255,255,255,0.09); border-color: var(--border-hi); }
+  .clip-btn.playing { border-color: var(--good); background: rgba(107, 230, 158, 0.12); }
+  .clip-icon {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    background: var(--crimson); color: #fff; display: grid; place-items: center; font-size: 10px;
+  }
+  .clip-btn.playing .clip-icon { background: var(--good); color: #0c1812; }
+  .clip-txt { flex: 1; min-width: 0; }
+  .clip-title { font-weight: 800; display: block; }
+  .clip-quote { font-size: 10.5px; color: var(--muted); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ==================== FEATURES BENTO & PAINT SHOP ==================== */
+  .bento-grid {
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px;
+  }
+  .bento {
+    grid-column: span 6; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .bento.wide { grid-column: span 12; }
+  .bento.third { grid-column: span 4; }
+  .bento-tag {
+    font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ice);
+  }
+  .bento h3 { margin: 0; font-family: var(--mono); font-size: 17px; font-weight: 900; }
+  .bento p { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  /* Interactive Livery Preview */
+  .livery-showcase {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 6px;
+    background: rgba(10, 8, 18, 0.55); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+  }
+  .cat-preview-svg { width: 118px; height: 78px; flex-shrink: 0; image-rendering: pixelated; }
+  .swatch-list { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+  .swatch-pill {
+    appearance: none; display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 11px; border-radius: 7px; cursor: pointer;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--mono); font-size: 11px; font-weight: 700;
+  }
+  .swatch-pill.active { border-color: var(--good); background: rgba(107, 230, 158, 0.14); }
+  .swatch-dot { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.35); }
+
+  /* ==================== CONTROLS ==================== */
+  .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ctrl-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .ctrl-card h3 { margin: 0 0 14px; font-family: var(--mono); font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .bind-list { display: grid; gap: 8px; }
+  .bind-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 7px 10px; border-radius: 6px; background: rgba(255,255,255,0.04); font-size: 12.5px;
+  }
+  .bind-row span:last-child { color: var(--muted); }
+  .kbd {
+    font-family: var(--mono); font-size: 11px; font-weight: 800;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.22); color: var(--gold);
+  }
+
+  /* ==================== FOOTER & CREDITS ==================== */
+  footer {
+    position: relative; z-index: 2; border-top: 1px solid var(--border);
+    background: rgba(12, 9, 20, 0.92); padding: 48px 20px 56px;
+  }
+  .footer-inner {
+    max-width: 1160px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 28px;
+  }
+  .footer-col { max-width: 440px; }
+  .footer-title { font-family: var(--mono); font-weight: 900; font-size: 15px; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .footer-note { font-size: 12.5px; color: var(--muted); margin: 0 0 10px; }
+  .credit-links { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--mono); font-size: 11px; }
+  .credit-links a {
+    text-decoration: none; padding: 4px 9px; border-radius: 5px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--ice);
+  }
+  .credit-links a:hover { border-color: var(--border-hi); color: var(--text); }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+    .bento, .bento.third { grid-column: span 12; }
+    .controls-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg-snow"></canvas>
+
+<nav class="top-nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <img src="assets/icon.svg" alt="Snow Patrol icon" />
+      <span>SNOW PATROL</span>
+    </a>
+    <div class="nav-links">
+      <a href="#play-stage">Play Live</a>
+      <a href="#shifts">5 Shifts</a>
+      <a href="#voices">Voice Cast</a>
+      <a href="#features">Tech &amp; Garage</a>
+      <a href="#controls">Controls</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-ghost" href="https://github.com/nearbycoder/snow-patrol" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="btn btn-primary" href="play.html">▶ PLAY NOW</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Free WebGL Game · Zero Install · Three.js + Sprite-Stacking + Reverb-TTS</div>
+      <h1 class="hero-title">CARVE THE MOUNTAIN.<br>CLEAR THE STORM.</h1>
+      <p class="hero-lead">
+        Fire up a sprite-stacked tracked snowcat and plow five scalable alpine shifts — complete with real-time deformable snow banks, slippery black ice, overhead gondolas, broadcast-quality <b>Reverb-TTS</b> radio dispatchers, and full controller rumble.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary btn-lg" href="play.html">▶ PLAY FULLSCREEN</a>
+        <a class="btn btn-ghost btn-lg" href="#play-stage" id="hero-embed-jump">↓ Play Embedded Below</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/nearbycoder/snow-patrol" target="_blank" rel="noopener">★ Source on GitHub</a>
+      </div>
+      <div class="hero-stats">
+        <span>🏔️ <b>5 Scalable Shifts</b> (60m → 110m)</span>
+        <span>🎙️ <b>24 Reverb-TTS fp16</b> Voice Lines</span>
+        <span>🎮 <b>Gamepad + Dual-Rumble</b> Native</span>
+        <span>🧊 <b>Single-File Three.js</b> WebGL</span>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE PLAYABLE STAGE -->
+    <div class="play-shell" id="play-stage">
+      <div class="play-bar">
+        <div class="play-bar-left">
+          <div class="win-dots"><i></i><i></i><i></i></div>
+          <span id="stage-bar-label">play.html · Live WebGL Build</span>
+        </div>
+        <div class="play-bar-actions">
+          <button class="mini-btn" id="btn-reload-embed" style="display:none;">↺ Reload</button>
+          <button class="mini-btn" id="btn-fs-embed" style="display:none;">⛶ Fullscreen</button>
+          <a class="mini-btn" href="play.html">↗ Open Standalone</a>
+        </div>
+      </div>
+      <div class="play-viewport" id="play-viewport">
+        <div class="play-cover" id="play-cover">
+          <img class="cover-art" src="assets/icon.svg" alt="Snow Patrol" />
+          <div class="cover-title">READY FOR YOUR ALPINE SHIFT?</div>
+          <p class="cover-sub">Launch the full Three.js game right here inside the page — or open standalone fullscreen for 100% viewport immersion.</p>
+          <div class="cover-btns">
+            <button class="btn btn-primary btn-lg" id="btn-launch-embed">▶ LAUNCH LIVE GAME HERE</button>
+            <a class="btn btn-ghost btn-lg" href="play.html">⛶ FULLSCREEN MODE</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- 5 SCALABLE MOUNTAIN SHIFTS -->
+<section class="block" id="shifts">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-kicker">Progressive Campaign Scalability</div>
+      <h2 class="sec-title">Five Alpine Shifts — From Cozy Driveway to Midnight Blizzard</h2>
+      <p class="sec-desc">Each mission dynamically scales the terrain world size, shadow frustum, snow drifts, weather, and hazards. Earn 3-star par times and Clean Driver bonuses to fund your Snowcat Garage.</p>
+    </div>
+    <div class="shifts-grid">
+      <div class="shift-card">
+        <div class="shift-top"><span class="scale-pill">SMALL · 60m</span><span class="shift-mood">🌅 Sunset</span></div>
+        <div class="shift-name">1. Cabin Driveway</div>
+        <p class="shift-desc">An intimate alpenglow warm-up clearing around Pine Cabin, complete with a parked SUV, firewood stack, cheeky snowmen, and Barnaby the lodge husky.</p>
+        <div class="shift-meta"><span>🚗 1 SUV</span><span>⛄ 2 Snowmen</span><span>⚡ 2 Fuel</span></div>
+        <a class="shift-play" href="play.html?stage=0">Play Shift 1 →</a>
+      </div>
+      <div class="shift-card">
+        <div class="shift-top"><span class="scale-pill">MEDIUM · 74m</span><span class="shift-mood">🌅 Alpenglow</span></div>
+        <div class="shift-name">2. Summit Ski Plaza</div>
+        <p class="shift-desc">The classic ski-resort base plaza beneath gliding overhead gondola cabins, with a central lift tower, alpine boulders, and an eastern black-ice patch.</p>
+        <div class="shift-meta"><span>🚡 Gondolas</span><span>🧊 Black Ice</span><span>🗼 Lift Pylon</span></div>
+        <a class="shift-play" href="play.html?stage=1">Play Shift 2 →</a>
+      </div>
+      <div class="shift-card">
+        <div class="shift-top"><span class="scale-pill">MED-LG · 84m</span><span class="shift-mood">☀️ Alpine Day</span></div>
+        <div class="shift-name">3. Chalet Village Court</div>
+        <p class="shift-desc">Weave around three snowed-in guest SUVs on a cobblestone courtyard loop without scratching their paint — or hear about it on Channel 4.</p>
+        <div class="shift-meta"><span>🚗 3 SUVs</span><span>🧊 2 Ice</span><span>🪵 Log Piles</span></div>
+        <a class="shift-play" href="play.html?stage=2">Play Shift 3 →</a>
+      </div>
+      <div class="shift-card">
+        <div class="shift-top"><span class="scale-pill">LARGE · 96m</span><span class="shift-mood">🌨️ Dusk Storm</span></div>
+        <div class="shift-name">4. Pine Ridge Pass</div>
+        <p class="shift-desc">A sweeping S-curve mountain highway buried under heavy wind-sculpted drifts. Kick in Twin-Turbo Boost for Drift Buster bonuses on icy hairpins.</p>
+        <div class="shift-meta"><span>🛣️ S-Curve</span><span>💨 Deep Drifts</span><span>⚡ 3 Fuel</span></div>
+        <a class="shift-play" href="play.html?stage=3">Play Shift 4 →</a>
+      </div>
+      <div class="shift-card">
+        <div class="shift-top"><span class="scale-pill massive">MASSIVE · 110m</span><span class="shift-mood">🌌 Aurora</span></div>
+        <div class="shift-name">5. Avalanche Helipad</div>
+        <p class="shift-desc">Midnight rescue dispatch under shimmering Aurora Borealis ribbons! Uncover the yellow H landing pad so Alpine Rescue One can descend and touch down.</p>
+        <div class="shift-meta"><span>🚁 Live Finale</span><span>🌌 Aurora</span><span>⚡ 4 Fuel</span></div>
+        <a class="shift-play" href="play.html?stage=4">Play Shift 5 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE REVERB-TTS VOICE CAST AUDITION -->
+<section class="block alt" id="voices">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-kicker">Zero-Shot Cloned Neural Audio · Software Mansion Reverb-TTS (fp16)</div>
+      <h2 class="sec-title">Audition the Live Mountain Radio Cast</h2>
+      <p class="sec-desc">All 24 in-game voice lines were zero-shot cloned locally using <b>software-mansion/Reverb-TTS</b> (`fp16`) from studio-recorded open-licensed voice actors, mastered to broadcast loudness, and routed through selectable Web Audio radio EQ with automatic music ducking.</p>
+    </div>
+    <div class="voices-grid">
+      <div class="voice-card">
+        <div class="voice-head">
+          <div class="voice-badge">📡</div>
+          <div>
+            <div class="voice-role">Base Camp Dispatch · HiFi-TTS #92</div>
+            <div class="voice-name">Chief Maren</div>
+          </div>
+        </div>
+        <p class="voice-bio">Calm, crisp expedition lead guiding you through shift briefings, 50%/80% milestones, black ice warnings, and the Stage 5 rescue chopper approach.</p>
+        <div class="voice-clips">
+          <button class="clip-btn" data-src="assets/voices/intro_0.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Shift 1 Dispatch Briefing</span><span class="clip-quote">"Copy, Snowcat One. Warm-up shift at Pine Cabin Driveway..."</span></span>
+          </button>
+          <button class="clip-btn" data-src="assets/voices/drift_buster.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Deep Drift Buster Callout</span><span class="clip-quote">"Nice drift bust! You tore right through that avalanche mound."</span></span>
+          </button>
+          <button class="clip-btn" data-src="assets/voices/rescue_chopper.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Stage 5 Rescue Chopper Clearance</span><span class="clip-quote">"Helipad is spotless! Alpine Rescue One is cleared for final approach."</span></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-head">
+          <div class="voice-badge gus">🔧</div>
+          <div>
+            <div class="voice-role gus">Snowcat Garage Chief · HiFi-TTS #6097</div>
+            <div class="voice-name">Gus</div>
+          </div>
+        </div>
+        <p class="voice-bio">Deep-voiced veteran mountain mechanic bolting on your wide-wing plow blades, twin-turbo diesel tunes, heated ice-grip tracks, and custom liveries.</p>
+        <div class="voice-clips">
+          <button class="clip-btn" data-src="assets/voices/upgrade_blade.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Wide-Wing Plow Blade Install</span><span class="clip-quote">"Wide-wing plow blade is bolted on tight. You will carve clean lanes..."</span></span>
+          </button>
+          <button class="clip-btn" data-src="assets/voices/upgrade_tracks.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Heated Ice-Grip Tracks</span><span class="clip-quote">"Black ice is going to feel like dry tarmac under your treads."</span></span>
+          </button>
+          <button class="clip-btn" data-src="assets/voices/livery_paint.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Fresh Paint Shop Livery</span><span class="clip-quote">"Fresh coat of alpine paint! Looking sharp enough for the summit postcard."</span></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-head">
+          <div class="voice-badge guest">🚗</div>
+          <div>
+            <div class="voice-role guest">Channel 4 Lodge Guest · RAVDESS #21</div>
+            <div class="voice-name">Outraged SUV Owner</div>
+          </div>
+        </div>
+        <p class="voice-bio">Parked right next to the chalet courtyard — bump a guest 4×4 with your steel moldboard and hear genuine acted fury over Channel 4.</p>
+        <div class="voice-clips">
+          <button class="clip-btn" data-src="assets/voices/car_hit_1.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Bumper Scrape Alert</span><span class="clip-quote">"Hey! Watch the paint! That is a brand new four by four!"</span></span>
+          </button>
+          <button class="clip-btn" data-src="assets/voices/car_hit_2.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Wing Mirror Warning</span><span class="clip-quote">"Whoa! Easy with that giant plow blade! You almost took off my mirror!"</span></span>
+          </button>
+          <button class="clip-btn" data-src="assets/voices/horn_dog.mp3">
+            <span class="clip-icon">▶</span>
+            <span class="clip-txt"><span class="clip-title">Bonus: Barnaby &amp; the Air Horn</span><span class="clip-quote">"Haha, Barnaby the lodge husky loves that air horn!"</span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES & INTERACTIVE PAINT SHOP -->
+<section class="block" id="features">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-kicker">Built Like a Craft Indie Gem</div>
+      <h2 class="sec-title">Volumetric Sprite-Stacking Meets Real-Time Snow Physics</h2>
+      <p class="sec-desc">Every pixel, slice, snow bank, and synth note is generated procedurally in pure Three.js &amp; Web Audio — zero external 3D model files or game engine bloat.</p>
+    </div>
+
+    <div class="bento-grid">
+      <div class="bento">
+        <div class="bento-tag">danielwh2/sprite-stacking Architecture</div>
+        <h3>True 3D Volumetric Slice-Stacking</h3>
+        <p>Every asset — the articulated 4-part Snowcat, Chalets, Overhead Gondolas, Barnaby the Husky, Pines, Boulders, and the Rescue Helicopter — is built as ground-to-roof 2D pixel slice strips with computed 3D occupancy normals, upper-neighbor ambient occlusion, emissive masks, and upward-facing <code>normZ</code> snow caps. Press <b>V</b> in-game to inspect live slice strips or <b>X</b> to explode every stack in 3D.</p>
+      </div>
+
+      <div class="bento">
+        <div class="bento-tag">128×128 Heightfield Simulation</div>
+        <h3>Tactile Snow Displacement &amp; Rolling Wave</h3>
+        <p>Snow doesn't just erase on contact — your hydraulic blade scoops powder into 15 live load bins, builds a churning rolling snow wave right in front of the moldboard, casts angled windrow berms sideways with <b>Q/E</b>, leaves corduroy tracks behind your rear tiller, and lets you lift the blade (<b>Space</b>) to reposition cleanly.</p>
+      </div>
+
+      <div class="bento third">
+        <div class="bento-tag">Crisp Pixel-Art Pipeline</div>
+        <h3>Low-Res Render + 1px Outlines</h3>
+        <p>Renders to an adjustable low-res WebGL target (1x HD to 4x Chunky) with nearest-neighbor blitting, depth-edge 1px silhouette ink outlines, emissive pixel bloom, Bayer 4×4 dithered sunset &amp; aurora skies, and live lantern snow pools.</p>
+      </div>
+
+      <div class="bento third">
+        <div class="bento-tag">Web Audio API Synthesizer</div>
+        <h3>Adaptive Synth + Formant Choir</h3>
+        <p>Three time-of-day soundtracks (Alpenglow Chill, Alpine Groove, Midnight Aurora) with real vowel-formant vocal choir pads, dynamic percussion that builds as you plow, mountain wind ambience, diesel engine purr, and brass air horn.</p>
+      </div>
+
+      <div class="bento third">
+        <div class="bento-tag">Full Settings Menu (O)</div>
+        <h3>Deep Audio &amp; Visual Tuning</h3>
+        <p>Tune Master, Music, Radio &amp; SFX sliders, switch Radio EQ (Broadcast / Walkie / Studio), adjust pixel scale, shadow quality, outline &amp; bloom intensity, snow-cap depth, and camera sensitivity — all saved automatically.</p>
+      </div>
+
+      <div class="bento wide">
+        <div class="bento-tag">Snowcat Garage &amp; Live Livery Shader</div>
+        <h3>Upgrade Your Rig &amp; Preview Custom Paint Liveries</h3>
+        <p>Spend Shift Credits in Gus's Garage on <b>Wide-Wing Plow Blades</b>, <b>Twin-Turbo Diesel</b>, <b>Heated Ice-Grip Tracks</b>, and <b>Rotary Powder Throwers</b> — plus unlock 5 live shader paint jobs. Click a swatch below to preview:</p>
+        <div class="livery-showcase">
+          <svg class="cat-preview-svg" viewBox="0 0 64 42" shape-rendering="crispEdges" id="livery-svg">
+            <rect x="0" y="34" width="64" height="8" fill="#ebd5dc"/>
+            <rect x="8" y="27" width="32" height="10" fill="#2c3040"/>
+            <rect x="11" y="29" width="5" height="6" fill="#7d8499"/>
+            <rect x="19" y="29" width="5" height="6" fill="#7d8499"/>
+            <rect x="27" y="29" width="5" height="6" fill="#7d8499"/>
+            <rect x="34" y="29" width="4" height="6" fill="#7d8499"/>
+            <!-- Recolorable paint voxels -->
+            <g id="svg-paint" fill="#e03a28">
+              <rect x="10" y="20" width="28" height="8"/>
+              <rect x="20" y="10" width="18" height="11"/>
+              <rect x="8" y="13" width="10" height="3"/>
+              <rect x="6" y="15" width="4" height="7"/>
+            </g>
+            <!-- Glass, beacons & headlights -->
+            <rect x="29" y="12" width="8" height="7" fill="#29344a"/>
+            <rect x="31" y="13" width="2" height="3" fill="#9bc7f0"/>
+            <rect x="24" y="7" width="5" height="3" fill="#ffd166"/>
+            <rect x="37" y="11" width="3" height="2" fill="#fffbe8"/>
+            <!-- Curved front plow blade + snow wave -->
+            <rect x="41" y="22" width="6" height="15" fill="#2b2f3d"/>
+            <rect x="41" y="20" width="6" height="2" fill="#f0b630"/>
+            <rect x="47" y="28" width="11" height="9" fill="#ffffff"/>
+            <rect x="49" y="25" width="7" height="4" fill="#fff1ed"/>
+          </svg>
+          <div class="swatch-list" id="swatch-list">
+            <button class="swatch-pill active" data-color="#e03a28"><span class="swatch-dot" style="background:#e03a28"></span>Pisten Crimson</button>
+            <button class="swatch-pill" data-color="#f2b824"><span class="swatch-dot" style="background:#f2b824"></span>Rescue Gold</button>
+            <button class="swatch-pill" data-color="#2e7ee6"><span class="swatch-dot" style="background:#2e7ee6"></span>Glacier Cobalt</button>
+            <button class="swatch-pill" data-color="#2cc7a4"><span class="swatch-dot" style="background:#2cc7a4"></span>Summit Mint</button>
+            <button class="swatch-pill" data-color="#3a364c"><span class="swatch-dot" style="background:#3a364c"></span>Stealth Ember</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTROLS -->
+<section class="block alt" id="controls">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-kicker">Play Your Way</div>
+      <h2 class="sec-title">Keyboard, Mouse, Touch &amp; Full Controller Rumble</h2>
+      <p class="sec-desc">Plug in an Xbox, PlayStation DualSense, Switch Pro, or Steam Deck controller at any time — the HUD switches prompts automatically and engages dual-motor snow-carving rumble.</p>
+    </div>
+    <div class="controls-grid">
+      <div class="ctrl-card">
+        <h3>⌨️ Keyboard &amp; Mouse</h3>
+        <div class="bind-list">
+          <div class="bind-row"><span class="kbd">W A S D / Arrows</span><span>Drive &amp; counter-rotate tracks</span></div>
+          <div class="bind-row"><span class="kbd">Q / E</span><span>Angle plow blade Left / Center / Right</span></div>
+          <div class="bind-row"><span class="kbd">Space</span><span>Raise / Lower hydraulic plow blade</span></div>
+          <div class="bind-row"><span class="kbd">Shift</span><span>Twin-Turbo Boost (Drift Buster!)</span></div>
+          <div class="bind-row"><span class="kbd">H</span><span>Alpine Air Horn (honk at Barnaby!)</span></div>
+          <div class="bind-row"><span class="kbd">Mouse Drag / Wheel</span><span>360° camera orbit &amp; zoom (<b>C</b> cycles presets)</span></div>
+          <div class="bind-row"><span class="kbd">O / G / V / X</span><span>Settings · Garage · Slice Strips · Explode 3D</span></div>
+        </div>
+      </div>
+      <div class="ctrl-card">
+        <h3>🎮 Gamepad / Controller</h3>
+        <div class="bind-list">
+          <div class="bind-row"><span class="kbd">RT / LT (R2 / L2)</span><span>Smooth analog throttle &amp; reverse</span></div>
+          <div class="bind-row"><span class="kbd">Left Stick</span><span>Proportional track steering</span></div>
+          <div class="bind-row"><span class="kbd">Right Stick</span><span>360° camera orbit &amp; elevation pitch</span></div>
+          <div class="bind-row"><span class="kbd">LB / RB (L1 / R1)</span><span>Angle plow blade Left / Center / Right</span></div>
+          <div class="bind-row"><span class="kbd">A (✕)</span><span>Raise / Lower plow blade (Confirm in menus)</span></div>
+          <div class="bind-row"><span class="kbd">X (□) / L3</span><span>Hold Twin-Turbo Boost</span></div>
+          <div class="bind-row"><span class="kbd">B (○) / Y (△) / Start</span><span>Air Horn · Camera Preset · Stages Menu</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="footer-title">SNOW PATROL</div>
+      <p class="footer-note">Built as a single-file Three.js WebGL game exploring procedural volumetric sprite-stacking, deformable snow physics, Web Audio synthesis, and zero-shot neural voice cloning.</p>
+      <p class="footer-note" style="font-size:11.5px;opacity:0.85;">Synthetic character voices generated with <b>Reverb-TTS</b> by Software Mansion AI Labs (CC BY-NC 4.0) from open-licensed reference datasets (NVIDIA HiFi-TTS, CC BY 4.0 &amp; RAVDESS, CC BY-NC-SA 4.0).</p>
+    </div>
+    <div>
+      <div class="footer-title" style="font-size:12px;color:var(--gold);margin-bottom:10px;">OPEN TECH &amp; LINKS</div>
+      <div class="credit-links">
+        <a href="play.html">▶ Play Snow Patrol</a>
+        <a href="https://github.com/nearbycoder/snow-patrol" target="_blank" rel="noopener">GitHub Repo</a>
+        <a href="https://github.com/danielwh2/sprite-stacking" target="_blank" rel="noopener">danielwh2/sprite-stacking</a>
+        <a href="https://huggingface.co/software-mansion/Reverb-TTS" target="_blank" rel="noopener">Software Mansion Reverb-TTS</a>
+        <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// 1. Subtle Ambient Pixel Snowfall Background
+(() => {
+  const cv = document.getElementById('bg-snow');
+  const ctx = cv.getContext('2d');
+  let w = 0, h = 0;
+  const flakes = Array.from({ length: 85 }, () => ({
+    x: Math.random(), y: Math.random(),
+    s: 2 + Math.floor(Math.random() * 3),
+    vy: 0.04 + Math.random() * 0.08,
+    vx: 0.01 + Math.random() * 0.02,
+    ph: Math.random() * Math.PI * 2,
+  }));
+  function resize() { w = cv.width = window.innerWidth; h = cv.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  let last = performance.now();
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(255, 242, 238, 0.72)';
+    for (const f of flakes) {
+      f.y += f.vy * dt;
+      f.x += (f.vx + Math.sin(now * 0.001 + f.ph) * 0.012) * dt;
+      if (f.y > 1.02) { f.y = -0.02; f.x = Math.random(); }
+      if (f.x > 1.02) f.x = -0.02;
+      ctx.fillRect(Math.round(f.x * w), Math.round(f.y * h), f.s, f.s);
+    }
+  }
+  requestAnimationFrame(loop);
+})();
+
+// 2. Interactive Embedded Playable Game Stage
+const viewport = document.getElementById('play-viewport');
+const cover = document.getElementById('play-cover');
+const reloadBtn = document.getElementById('btn-reload-embed');
+const fsBtn = document.getElementById('btn-fs-embed');
+let gameIframe = null;
+
+function mountEmbeddedGame() {
+  if (gameIframe) return;
+  cover.style.display = 'none';
+  gameIframe = document.createElement('iframe');
+  gameIframe.src = 'play.html?embed=1';
+  gameIframe.title = 'Snow Patrol — Live Playable Game';
+  gameIframe.setAttribute('allow', 'autoplay; gamepad; fullscreen');
+  gameIframe.allowFullscreen = true;
+  viewport.appendChild(gameIframe);
+  reloadBtn.style.display = 'inline-block';
+  fsBtn.style.display = 'inline-block';
+  document.getElementById('stage-bar-label').textContent = 'LIVE · Snow Patrol Running (Click inside canvas for keyboard/gamepad)';
+}
+
+document.getElementById('btn-launch-embed').addEventListener('click', mountEmbeddedGame);
+document.getElementById('hero-embed-jump').addEventListener('click', () => setTimeout(mountEmbeddedGame, 250));
+reloadBtn.addEventListener('click', () => { if (gameIframe) gameIframe.src = 'play.html?embed=1'; });
+fsBtn.addEventListener('click', () => {
+  if (viewport.requestFullscreen) viewport.requestFullscreen();
+  else if (gameIframe && gameIframe.requestFullscreen) gameIframe.requestFullscreen();
+});
+
+// 3. Live Reverb-TTS Voice Audition Players
+let activeAudio = null, activeBtn = null;
+document.querySelectorAll('.clip-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const src = btn.dataset.src;
+    if (activeBtn === btn && activeAudio && !activeAudio.paused) {
+      activeAudio.pause(); activeAudio.currentTime = 0;
+      btn.classList.remove('playing'); btn.querySelector('.clip-icon').textContent = '▶';
+      activeBtn = null; return;
+    }
+    if (activeAudio) { activeAudio.pause(); activeAudio.currentTime = 0; }
+    if (activeBtn) { activeBtn.classList.remove('playing'); activeBtn.querySelector('.clip-icon').textContent = '▶'; }
+    const audio = new Audio(src);
+    activeAudio = audio; activeBtn = btn;
+    btn.classList.add('playing'); btn.querySelector('.clip-icon').textContent = '■';
+    audio.onended = () => {
+      btn.classList.remove('playing'); btn.querySelector('.clip-icon').textContent = '▶';
+      if (activeBtn === btn) activeBtn = null;
+    };
+    audio.play().catch(() => {
+      btn.classList.remove('playing'); btn.querySelector('.clip-icon').textContent = '▶';
+    });
+  });
+});
+
+// 4. Interactive Snowcat Livery Preview Swatches
+const paintGroup = document.getElementById('svg-paint');
+document.querySelectorAll('.swatch-pill').forEach((pill) => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.swatch-pill').forEach((p) => p.classList.remove('active'));
+    pill.classList.add('active');
+    paintGroup.setAttribute('fill', pill.dataset.color);
+  });
+});
+</script>
+</body>
+</html>

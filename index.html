@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SNOW PATROL — Sprite-Stacked 3D Alpine Snowplow Game</title>
-<meta name="description" content="Command a sprite-stacked 3D alpine snowcat across 5 scalable mountain shifts. Real-time deformable snow physics, Reverb-TTS neural radio voices, adaptive synth soundtrack, and controller rumble — playable free in your browser." />
+<meta name="description" content="Command a sprite-stacked 3D alpine snowcat across 5 scalable mountain shifts. Real-time deformable snow physics, FixedSeed/Robin 48 kHz expressive radio voices, adaptive synth soundtrack, and controller rumble — playable free in your browser." />
 <meta property="og:title" content="SNOW PATROL — Sprite-Stacked 3D Alpine Snowplow Game" />
-<meta property="og:description" content="Carve the mountain. Clear the storm. Playable right in your browser with Three.js sprite stacking, real-time snow physics, Reverb-TTS neural voices, and controller rumble." />
+<meta property="og:description" content="Carve the mountain. Clear the storm. Playable right in your browser with Three.js sprite stacking, real-time snow physics, FixedSeed/Robin 48 kHz character voices, and controller rumble." />
 <meta property="og:type" content="website" />
 <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
 <style>
@@ -619,10 +619,10 @@
 
   <div class="container">
     <div class="hero-copy">
-      <div class="eyebrow"><span class="beacon-dot"></span>Free WebGL Game · Three.js Sprite-Stacking · Reverb-TTS fp16 Voices</div>
+      <div class="eyebrow"><span class="beacon-dot"></span>Free WebGL Game · Three.js Sprite-Stacking · FixedSeed/Robin 48 kHz Voices</div>
       <h1 class="hero-title">CARVE THE MOUNTAIN.<br><span class="hl">CLEAR THE STORM.</span></h1>
       <p class="hero-lead">
-        Fire up a sprite-stacked 3D tracked snowcat and plow five scalable alpine shifts — with real-time deformable snow banks, slippery black ice, gliding gondolas, broadcast-quality <b>Reverb-TTS</b> radio dispatchers, and dual-motor controller rumble.
+        Fire up a sprite-stacked 3D tracked snowcat and plow five scalable alpine shifts — with real-time deformable snow banks, slippery black ice, gliding gondolas, expressive 48 kHz <b>FixedSeed/Robin</b> character voices, and dual-motor controller rumble.
       </p>
       <div class="hero-ctas">
         <a class="btn btn-primary btn-lg" href="play.html">▶ PLAY FULLSCREEN</a>
@@ -632,7 +632,7 @@
       <div class="hero-stats">
         <span class="stat-chip">🏔️ <b>5 Scalable Shifts</b> (60m → 110m)</span>
         <span class="stat-chip">🧱 <b>True 3D Sprite-Stacking</b></span>
-        <span class="stat-chip">🎙️ <b>24 Reverb-TTS fp16</b> Lines</span>
+        <span class="stat-chip">🎙️ <b>24 Robin 48 kHz</b> Character Lines</span>
         <span class="stat-chip">🎮 <b>Gamepad + Dual-Rumble</b></span>
       </div>
     </div>
@@ -831,13 +831,13 @@
   </div>
 </section>
 
-<!-- LIVE REVERB-TTS VOICE CAST WITH ANIMATED PIXEL PORTRAITS -->
+<!-- LIVE ROBIN 48 KHZ VOICE CAST WITH ANIMATED PIXEL PORTRAITS -->
 <section class="block" id="voices">
   <div class="container">
     <div class="sec-head reveal">
-      <div class="sec-kicker"><span class="beacon-dot"></span>Zero-Shot Cloned Neural Audio · Reverb-TTS (fp16)</div>
+      <div class="sec-kicker"><span class="beacon-dot"></span>Expressive 48 kHz Character Audio · FixedSeed/Robin</div>
       <h2 class="sec-title">Audition the Animated Mountain Radio Cast</h2>
-      <p class="sec-desc">All 24 in-game voice lines were zero-shot cloned locally using <b>software-mansion/Reverb-TTS</b> (<code>fp16</code>) from studio-recorded open-licensed voice actors, mastered to broadcast loudness, and routed through Web Audio radio EQ with automatic music ducking.</p>
+      <p class="sec-desc">All 24 in-game voice lines were directed and rendered at 48 kHz using <b>FixedSeed/Robin</b> with character-anchored voice prompts and expressive acting cues (<code>[laughs]</code>, <code>[shouting]</code>), broadcast-mastered, and routed through selectable Web Audio radio EQ with automatic music ducking.</p>
     </div>
 
     <div class="voices-grid">
@@ -845,7 +845,7 @@
         <div class="voice-head">
           <div class="portrait-frame" id="pf-maren"><canvas class="portrait-cv pixelated" data-char="maren" width="24" height="24"></canvas></div>
           <div>
-            <div class="voice-role">Base Camp Dispatch · HiFi-TTS #92</div>
+            <div class="voice-role">Base Camp Dispatch · Robin 48 kHz</div>
             <div class="voice-name">Chief Maren</div>
           </div>
         </div>
@@ -873,7 +873,7 @@
         <div class="voice-head">
           <div class="portrait-frame gus" id="pf-gus"><canvas class="portrait-cv pixelated" data-char="gus" width="24" height="24"></canvas></div>
           <div>
-            <div class="voice-role gus">Snowcat Garage Chief · HiFi-TTS #6097</div>
+            <div class="voice-role gus">Snowcat Garage Chief · Robin 48 kHz</div>
             <div class="voice-name">Gus</div>
           </div>
         </div>
@@ -901,7 +901,7 @@
         <div class="voice-head">
           <div class="portrait-frame guest" id="pf-guest"><canvas class="portrait-cv pixelated" data-char="guest" width="24" height="24"></canvas></div>
           <div>
-            <div class="voice-role guest">Channel 4 Lodge Guest · RAVDESS #21</div>
+            <div class="voice-role guest">Channel 4 Lodge Guest · Robin 48 kHz</div>
             <div class="voice-name">Outraged SUV Owner</div>
           </div>
         </div>
@@ -971,7 +971,7 @@
       <div class="footer-col">
         <div class="footer-title"><span class="beacon-dot"></span>SNOW PATROL</div>
         <p class="footer-note">Built as a single-file Three.js WebGL game exploring procedural volumetric sprite-stacking, deformable snow physics, Web Audio synthesis, and zero-shot neural voice cloning.</p>
-        <p class="footer-note" style="font-size:11.5px;opacity:0.85;">Synthetic character voices generated with <b>Reverb-TTS</b> by Software Mansion AI Labs (CC BY-NC 4.0) from open-licensed reference datasets (NVIDIA HiFi-TTS, CC BY 4.0 &amp; RAVDESS, CC BY-NC-SA 4.0).</p>
+        <p class="footer-note" style="font-size:11.5px;opacity:0.85;">Expressive 48 kHz character voices synthesized with <b>FixedSeed/Robin</b> by Fixed Seed Research Laboratory (Fixed Seed Open License).</p>
       </div>
       <div>
         <div class="footer-title" style="font-size:12px;color:var(--gold);margin-bottom:10px;">OPEN TECH &amp; LINKS</div>
@@ -979,7 +979,7 @@
           <a href="play.html">▶ Play Snow Patrol</a>
           <a href="https://github.com/nearbycoder/snow-patrol" target="_blank" rel="noopener">GitHub Repo</a>
           <a href="https://github.com/danielwh2/sprite-stacking" target="_blank" rel="noopener">danielwh2/sprite-stacking</a>
-          <a href="https://huggingface.co/software-mansion/Reverb-TTS" target="_blank" rel="noopener">Software Mansion Reverb-TTS</a>
+          <a href="https://huggingface.co/FixedSeed/Robin" target="_blank" rel="noopener">FixedSeed/Robin (48 kHz TTS)</a>
           <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a>
         </div>
       </div>

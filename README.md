@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Sprite-Stacked 3D Three.js Alpine Snowplow Game</strong><br>
-  Real-time deformable snow physics · 5 scalable mountain shifts · Reverb-TTS <code>fp16</code> neural radio voices · Procedural synth + vocal-choir soundtrack · Native controller + rumble
+  Real-time deformable snow physics · 5 scalable mountain shifts · FixedSeed/Robin 48 kHz expressive radio voices · Procedural synth + vocal-choir soundtrack · Native controller + rumble
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
   3. **Chalet Village Court** (`MED-LG · 84m` · Crisp Alpine Day + 3 Guest SUVs)
   4. **Pine Ridge Pass** (`LARGE · 96m` · Dusk Blizzard S-Curve Highway + Deep Drifts)
   5. **Avalanche Helipad** (`MASSIVE · 110m` · Aurora Midnight Blizzard + Live Rescue Helicopter Finale)
-- **Zero-Shot Cloned Neural Voice Cast (`software-mansion/Reverb-TTS` `fp16`)** — 24 embedded broadcast-mastered lines across **Chief Maren** (Base Dispatch), **Gus** (Snowcat Garage), and **Outraged Lodge Guest** (Channel 4), routed through selectable Web Audio radio EQ with automatic music ducking.
+- **Expressive 48 kHz Character Voice Cast ([`FixedSeed/Robin`](https://huggingface.co/FixedSeed/Robin))** — 24 embedded broadcast-mastered lines across **Chief Maren** (Base Dispatch), **Gus** (Snowcat Garage), and **Outraged Lodge Guest** (Channel 4), directed with per-line emotional prompts & inline acting tags (`[laughs]`, `[shouting]`) and routed through selectable Web Audio radio EQ with automatic music ducking.
 - **Snowcat Garage & Live Paint Shop (`G`)** — 4 mechanical upgrades (Wide-Wing Blade, Twin-Turbo Diesel, Heated Ice-Grip Tracks, Rotary Powder Thrower) + 5 shader-remapped Snowcat liveries.
 - **Native Gamepad Support + Dual-Motor Rumble** — Analog RT/LT throttle, Left Stick steering, Right Stick 360° camera orbit, and continuous snow-carving haptics.
 - **Full Audio & Visual Settings Menu (`O`)** — Master/Music/Radio/SFX volumes, Radio EQ presets, 1x–4x pixel scale, dynamic shadows, 1px silhouette outline & emissive bloom sliders, persisted to `localStorage`.
@@ -46,13 +46,13 @@
 
 ## Project Structure
 
-- [`index.html`](index.html) — Marketing landing page with interactive embedded playable stage, live Reverb-TTS voice auditions, and livery preview
-- [`play.html`](play.html) — Standalone single-file Three.js game (with all 24 `fp16` Reverb-TTS audio clips embedded)
-- [`scripts/generate_voices.py`](scripts/generate_voices.py) — Reproducible `software-mansion/Reverb-TTS` (`fp16`) voice cloning & mastering script
+- [`index.html`](index.html) — Animated pixel-art marketing landing page with living alpine diorama, 3D sprite-stack turntable, embedded playable stage, and live FixedSeed/Robin voice auditions
+- [`play.html`](play.html) — Standalone single-file Three.js game (with all 24 48 kHz FixedSeed/Robin audio clips embedded)
+- [`scripts/generate_voices.py`](scripts/generate_voices.py) — Reproducible [`FixedSeed/Robin`](https://huggingface.co/FixedSeed/Robin) 48 kHz character voice synthesis & mastering script
 - [`assets/voices/`](assets/voices/) — Individual mastered `.mp3` clips for the marketing site audio auditions
 
 ## Attribution & Licenses
 
 - **Sprite-Stacking Technique**: Inspired by [`danielwh2/sprite-stacking`](https://github.com/danielwh2/sprite-stacking) (MIT)
-- **Neural Voices**: Synthesized with [`software-mansion/Reverb-TTS`](https://huggingface.co/software-mansion/Reverb-TTS) by Software Mansion AI Labs (Model weights CC BY-NC 4.0) via zero-shot cloning from open-licensed studio corpora: NVIDIA `HiFi-TTS` (CC BY 4.0) and `RAVDESS` (CC BY-NC-SA 4.0)
+- **Neural Voices**: Synthesized at 48 kHz with [`FixedSeed/Robin`](https://huggingface.co/FixedSeed/Robin) by Fixed Seed Research Laboratory (Fixed Seed Open License)
 - **3D Engine**: [Three.js](https://threejs.org/) (MIT)

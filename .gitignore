@@ -4,4 +4,5 @@ __pycache__/
 *.wav
 assets/voices/refs/
 assets/voices/refs_v2/
+assets/voices/refs_robin/
 assets/voices/voices_bundle.json
